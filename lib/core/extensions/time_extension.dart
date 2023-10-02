@@ -88,6 +88,23 @@ extension DateUtils on DateTime {
     return (isAfter(range.start) || isAtSameMomentAs(range.start)) &&
         (isAtSameMomentAs(range.end) || isBefore(range.end));
   }
+
+  String get dateString {
+    DateTime now = DateTime.now();
+
+    if (year == now.year) {
+      if (month == now.month) {
+        DateFormat format = DateFormat('dd EEE • hh:mm a');
+        return format.format(this);
+      } else {
+        DateFormat format = DateFormat('dd MMM • EEE • hh:mm a');
+        return format.format(this);
+      }
+    } else {
+      DateFormat format = DateFormat('dd MMM yyyy • hh:mm a');
+      return format.format(this);
+    }
+  }
 }
 
 int daysElapsedSince(DateTime from, DateTime to) {
