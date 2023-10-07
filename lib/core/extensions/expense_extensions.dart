@@ -92,6 +92,9 @@ extension ExpensesHelper on Iterable<TransactionEntity> {
   List<TransactionEntity> isFilterTimeBetween(DateTimeRange range) =>
       where((element) => element.time!.isAfterBeforeTime(range)).toList();
 
+  List<TransactionEntity> transactionsForCid(int cid) =>
+      where((element) => element.categoryId! == cid).toList();
+
   double get filterTotal => fold<double>(0, (previousValue, element) {
         if (element.type == TransactionType.expense) {
           return previousValue - (element.currency ?? 0);

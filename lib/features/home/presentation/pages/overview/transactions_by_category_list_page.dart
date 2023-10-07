@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,6 +11,8 @@ import 'package:paisa/features/transaction/domain/entities/transaction.dart';
 import 'package:paisa/features/home/presentation/controller/summary_controller.dart';
 
 import 'package:paisa/core/widgets/paisa_widget.dart';
+
+import '../../cubit/overview/overview_cubit.dart';
 
 class TransactionByCategoryListPage extends StatelessWidget {
   const TransactionByCategoryListPage({
@@ -25,7 +28,7 @@ class TransactionByCategoryListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final int cid = int.parse(categoryId);
     final List<TransactionEntity> expenses =
-        BlocProvider.of<HomeBloc>(context).fetchExpensesFromCategoryId(cid);
+        BlocProvider.of<OverviewCubit>(context).expensesForCid(cid);
 
     return PaisaAnnotatedRegionWidget(
       color: Colors.transparent,

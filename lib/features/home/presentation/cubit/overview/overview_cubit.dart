@@ -71,6 +71,13 @@ class OverviewCubit extends Cubit<BudgetState> {
   void fetchDefaultCategory() {
     _defaultCategories.addAll(getCategoriesUseCase(NoParams()));
   }
+
+  List<TransactionEntity> expensesForCid(int cid) {
+    final List<TransactionEntity> selectedTimeExpenses =
+        _groupedExpenses[selectedTime] ?? [];
+
+    return selectedTimeExpenses.transactionsForCid(cid);
+  }
 }
 
 abstract class BudgetState extends Equatable {
