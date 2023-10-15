@@ -23,13 +23,14 @@ class OverviewCubit extends Cubit<BudgetState> {
   final GetCategoryUseCase getCategoryUseCase;
   final GetTransactionsUseCase getExpensesUseCase;
   String? selectedTime;
+  bool includeTransferExpenses = false;
 
   List<String> _filterTimes = [];
   final List<CategoryEntity> _defaultCategories = [];
   Map<String, List<TransactionEntity>> _groupedExpenses = {};
 
-  void fetchBudgetSummary(
-      List<TransactionEntity> expenses, FilterExpense filterExpense) {
+  void fetchBudgetSummary(List<TransactionEntity> expenses,
+      FilterExpense filterExpense, bool includeTransferExpenses) {
     if (expenses.isEmpty) {
       emit(EmptyFilterListState());
     } else {
@@ -37,6 +38,7 @@ class OverviewCubit extends Cubit<BudgetState> {
           expenses,
           (TransactionEntity expense) =>
               expense.time!.formatted(filterExpense));
+      this.includeTransferExpenses = includeTransferExpenses;
       final String time = selectedTime = _groupedExpenses.keys.first;
       _filterTimes = _groupedExpenses.keys.toList();
       emit(InitialSelectedState(time, _filterTimes));
@@ -52,16 +54,19 @@ class OverviewCubit extends Cubit<BudgetState> {
   }
 
   void fetchSelectedTimeExpenses(String time) {
-    final List<TransactionEntity> gropedExpenses =
-        _groupedExpenses[time] ?? [];
+    final List<TransactionEntity> gropedExpenses = _groupedExpenses[time] ?? [];
 
-    final List<TransactionEntity> selectedTimeExpenses =
-    gropedExpenses.where((element) {
-      CategoryEntity category =
-          getCategoryUseCase(GetCategoryParams(element.categoryId)) ??
-              _defaultCategories.first;
-      return !(category.isDefault ?? true);
-    }).toList();
+    final List<TransactionEntity> selectedTimeExpenses;
+    if (includeTransferExpenses) {
+      selectedTimeExpenses = gropedExpenses;
+    } else {
+      selectedTimeExpenses = gropedExpenses.where((element) {
+        CategoryEntity category =
+            getCategoryUseCase(GetCategoryParams(element.categoryId)) ??
+                _defaultCategories.first;
+        return !(category.isDefault ?? true);
+      }).toList();
+    }
 
     final Map<CategoryEntity, List<TransactionEntity>> categoryGroupedExpenses =
         groupBy(selectedTimeExpenses, (TransactionEntity expense) {

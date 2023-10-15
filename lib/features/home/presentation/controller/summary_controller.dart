@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 import 'package:paisa/core/constants/constants.dart';
@@ -16,9 +18,16 @@ class SummaryController {
     selectedFilterExpenseKey,
     defaultValue: FilterExpense.daily,
   );
+  late final bool includeTransfer = settingsUseCase.get<bool>(
+    includeTransferExpense,
+    defaultValue: false,
+  );
 
   late final ValueNotifier<FilterExpense> filterExpenseNotifier =
       ValueNotifier<FilterExpense>(filterExpense);
+
+  late final ValueNotifier<bool> includeTransferNotifier =
+      ValueNotifier<bool>(includeTransfer);
 
   final SettingsUseCase settingsUseCase;
   late final FilterExpense sortHomeExpense = settingsUseCase.get<FilterExpense>(
@@ -30,5 +39,5 @@ class SummaryController {
       ValueNotifier<FilterExpense>(sortHomeExpense);
 
   final ValueNotifier<TransactionType> typeNotifier =
-      ValueNotifier<TransactionType>(TransactionType.income);
+      ValueNotifier<TransactionType>(TransactionType.expense);
 }

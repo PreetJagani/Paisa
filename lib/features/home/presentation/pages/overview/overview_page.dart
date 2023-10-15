@@ -46,23 +46,28 @@ class OverViewPage extends StatelessWidget {
                 return ValueListenableBuilder<FilterExpense>(
                   valueListenable: summaryController.filterExpenseNotifier,
                   builder: (context, value, child) {
-                    budgetCubit.fetchBudgetSummary(filterExpenses, value);
-                    return Scaffold(
-                      body: ListView(
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        children: [
-                          OverviewFilter(
-                            budgetCubit: budgetCubit,
-                            summaryController: summaryController,
-                          ),
-                          OverviewListView(
-                            budgetCubit: budgetCubit,
-                          ),
-                        ],
-                      ),
+                    return ValueListenableBuilder<bool>(
+                        valueListenable: summaryController.includeTransferNotifier,
+                        builder: (context, includeTransfer, child) {
+                          budgetCubit.fetchBudgetSummary(filterExpenses, value, includeTransfer);
+                          return Scaffold(
+                              body: ListView(
+                                shrinkWrap: true,
+                                physics: const BouncingScrollPhysics(),
+                                children: [
+                                  OverviewFilter(
+                                    budgetCubit: budgetCubit,
+                                    summaryController: summaryController,
+                                  ),
+                                  OverviewListView(
+                                    budgetCubit: budgetCubit,
+                                  ),
+                                ],
+                              ),
+                            );
+                        }
                     );
-                  },
+                  }
                 );
               },
             );
