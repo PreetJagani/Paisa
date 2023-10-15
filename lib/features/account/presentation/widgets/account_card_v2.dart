@@ -24,8 +24,8 @@ class AccountCardV2 extends StatelessWidget {
         ColorScheme.fromSeed(seedColor: Color(account.color!));
     final color = colorScheme.primaryContainer;
     final onPrimary = colorScheme.onPrimaryContainer;
-    final String expense = expenses.totalExpense(null).toFormateCurrency(context);
-    final String income = expenses.totalIncome(null).toFormateCurrency(context);
+    final String expense = expenses.thisMonthExpense(null).toFormateCurrency(context);
+    final String income = expenses.thisMonthIncome(null).toFormateCurrency(context);
     final String totalBalance =
         (account.initialAmount + expenses.fullTotal(null)).toFormateCurrency(context);
     return Padding(
