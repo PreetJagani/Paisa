@@ -144,14 +144,11 @@ extension ExpensesHelper on Iterable<TransactionEntity> {
       0, (previousValue, element) => previousValue + (element ?? 0));
 
   double thisMonthExpense(BuildContext? context) =>
-      thisMonthExpensesList(context)
-          .map((e) => e.currency)
-          .fold<double>(
-              0, (previousValue, element) => previousValue + (element ?? 0));
+      thisMonthExpensesList(context).map((e) => e.currency).fold<double>(
+          0, (previousValue, element) => previousValue + (element ?? 0));
 
-  List<TransactionEntity> thisMonthExpensesList(BuildContext? context) =>
-      where(
-            (element) {
+  List<TransactionEntity> thisMonthExpensesList(BuildContext? context) => where(
+        (element) {
           if (context != null) {
             CategoryEntity? category = BlocProvider.of<HomeBloc>(context)
                 .fetchCategoryFromId(element.categoryId!);
@@ -167,8 +164,25 @@ extension ExpensesHelper on Iterable<TransactionEntity> {
               element.time?.year == DateTime.now().year)
           .toList();
 
-  List<double> expenseDoubleList(BuildContext? context) =>
-      thisMonthExpensesList(context).map((element) => (element.currency ?? 0)).toList();
+  // List<double> expenseDoubleList(BuildContext? context) =>
+  //     thisMonthExpensesList(context).map((element) => (element.currency ?? 0)).toList();
+
+  List<double> expenseDoubleList(BuildContext? context) {
+    DateTime now = DateTime.now();
+
+    List<double> dailyTotals = List.generate(now.day, (index) => 0.0);
+
+    thisMonthExpensesList(context).forEach((expense) {
+      if (expense.time != null) {
+        // Calculate the index (day of the month)
+        int day = expense.time!.day;
+
+        // Add the expense amount to the corresponding day
+        dailyTotals[day - 1] += expense.currency ?? 0;
+      }
+    });
+    return dailyTotals;
+  }
 
   List<TransactionEntity> thisMonthIncomeList(BuildContext? context) => where(
         (element) {
@@ -187,8 +201,22 @@ extension ExpensesHelper on Iterable<TransactionEntity> {
               element.time?.year == DateTime.now().year)
           .toList();
 
-  List<double> incomeDoubleList(BuildContext? context) =>
-      thisMonthIncomeList(context).map((element) => (element.currency ?? 0)).toList();
+  List<double> incomeDoubleList(BuildContext? context) {
+    DateTime now = DateTime.now();
+
+    List<double> dailyTotals = List.generate(now.day, (index) => 0.0);
+
+    thisMonthIncomeList(context).forEach((expense) {
+      if (expense.time != null) {
+        // Calculate the index (day of the month)
+        int day = expense.time!.day;
+
+        // Add the expense amount to the corresponding day
+        dailyTotals[day - 1] += expense.currency ?? 0;
+      }
+    });
+    return dailyTotals;
+  }
 
   double thisMonthIncome(BuildContext? context) =>
       thisMonthIncomeList(context).map((e) => e.currency).fold<double>(
