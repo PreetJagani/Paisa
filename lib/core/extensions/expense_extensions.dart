@@ -1,11 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:paisa/core/enum/transaction_type.dart';
 import 'package:paisa/core/extensions/time_extension.dart';
+import 'package:paisa/features/category/domain/entities/category.dart';
 import 'package:paisa/features/transaction/data/model/transaction_model.dart';
 import 'package:paisa/features/transaction/data/model/search_query.dart';
 import 'package:paisa/features/transaction/domain/entities/transaction.dart';
+
+import '../../features/home/presentation/bloc/home/home_bloc.dart';
 
 extension ExpenseModelBoxMapping on Box<TransactionModel> {
   List<TransactionModel> get expenses =>
@@ -104,54 +108,91 @@ extension ExpensesHelper on Iterable<TransactionEntity> {
           return previousValue;
         }
       });
-  double get fullTotal => totalIncome - totalExpense;
 
-  double get totalExpense => expenseList.map((e) => e.currency).fold<double>(
-      0, (previousValue, element) => previousValue + (element ?? 0));
+  double fullTotal(BuildContext? context) =>
+      totalIncome(context) - totalExpense(context);
 
-  double get totalIncome => incomeList.map((e) => e.currency).fold<double>(
-      0, (previousValue, element) => previousValue + (element ?? 0));
+  double totalExpense(BuildContext? context) => expenseList.fold<double>(
+        0,
+        (previousValue, element) {
+          if (context != null) {
+            CategoryEntity? category = BlocProvider.of<HomeBloc>(context)
+                .fetchCategoryFromId(element.categoryId!);
+            if (category?.isDefault ?? false) {
+              return previousValue;
+            }
+          }
+          return previousValue + (element.currency ?? 0);
+        },
+      );
+
+  double totalIncome(BuildContext? context) => incomeList.fold<double>(
+        0,
+        (previousValue, element) {
+          if (context != null) {
+            CategoryEntity? category = BlocProvider.of<HomeBloc>(context)
+                .fetchCategoryFromId(element.categoryId!);
+            if (category?.isDefault ?? false) {
+              return previousValue;
+            }
+          }
+          return previousValue + (element.currency ?? 0);
+        },
+      );
 
   double get total => map((e) => e.currency).fold<double>(
       0, (previousValue, element) => previousValue + (element ?? 0));
 
-  double get thisMonthExpense =>
-      where((element) => element.type == TransactionType.expense)
-          .where((element) =>
-              element.time?.month == DateTime.now().month &&
-              element.time?.year == DateTime.now().year)
+  double thisMonthExpense(BuildContext? context) =>
+      thisMonthExpensesList(context)
           .map((e) => e.currency)
           .fold<double>(
               0, (previousValue, element) => previousValue + (element ?? 0));
 
-  List<TransactionEntity> get thisMonthExpensesList =>
-      where((element) => element.type == TransactionType.expense)
+  List<TransactionEntity> thisMonthExpensesList(BuildContext? context) =>
+      where(
+            (element) {
+          if (context != null) {
+            CategoryEntity? category = BlocProvider.of<HomeBloc>(context)
+                .fetchCategoryFromId(element.categoryId!);
+            if (category?.isDefault ?? false) {
+              return false;
+            }
+          }
+          return element.type == TransactionType.expense;
+        },
+      )
           .where((element) =>
               element.time?.month == DateTime.now().month &&
               element.time?.year == DateTime.now().year)
           .toList();
 
-  List<double> get expenseDoubleList =>
-      thisMonthExpensesList.map((element) => (element.currency ?? 0)).toList();
+  List<double> expenseDoubleList(BuildContext? context) =>
+      thisMonthExpensesList(context).map((element) => (element.currency ?? 0)).toList();
 
-  List<TransactionEntity> get thisMonthIncomeList =>
-      where((element) => element.type == TransactionType.income)
+  List<TransactionEntity> thisMonthIncomeList(BuildContext? context) => where(
+        (element) {
+          if (context != null) {
+            CategoryEntity? category = BlocProvider.of<HomeBloc>(context)
+                .fetchCategoryFromId(element.categoryId!);
+            if (category?.isDefault ?? false) {
+              return false;
+            }
+          }
+          return element.type == TransactionType.income;
+        },
+      )
           .where((element) =>
               element.time?.month == DateTime.now().month &&
               element.time?.year == DateTime.now().year)
           .toList();
 
-  List<double> get incomeDoubleList =>
-      thisMonthIncomeList.map((element) => (element.currency ?? 0)).toList();
+  List<double> incomeDoubleList(BuildContext? context) =>
+      thisMonthIncomeList(context).map((element) => (element.currency ?? 0)).toList();
 
-  double get thisMonthIncome =>
-      where((element) => element.type == TransactionType.income)
-          .where((element) =>
-              element.time?.month == DateTime.now().month &&
-              element.time?.year == DateTime.now().year)
-          .map((e) => e.currency)
-          .fold<double>(
-              0, (previousValue, element) => previousValue + (element ?? 0));
+  double thisMonthIncome(BuildContext? context) =>
+      thisMonthIncomeList(context).map((e) => e.currency).fold<double>(
+          0, (previousValue, element) => previousValue + (element ?? 0));
 }
 
 extension TransactionHelper on TransactionEntity {}

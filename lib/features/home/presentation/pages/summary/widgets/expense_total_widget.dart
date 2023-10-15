@@ -19,9 +19,9 @@ class ExpenseTotalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalExpenseBalance = expenses.fullTotal;
-    final totalExpenses = expenses.totalExpense;
-    final totalIncome = expenses.totalIncome;
+    final totalExpenseBalance = expenses.fullTotal(context);
+    final totalExpenses = expenses.totalExpense(context);
+    final totalIncome = expenses.totalIncome(context);
     final totalAccountBalance =
         getIt.get<Box<AccountModel>>().totalAccountInitialAmount;
 

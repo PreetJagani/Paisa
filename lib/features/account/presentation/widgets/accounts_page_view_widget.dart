@@ -55,12 +55,12 @@ class _AccountPageViewWidgetState extends State<AccountPageViewWidget>
                   builder: (context, state) {
                     if (state is AccountSelectedState) {
                       final AccountEntity account = widget.accounts[index];
-                      final String expense = state.expenses.totalExpense
+                      final String expense = state.expenses.totalExpense(null)
                           .toFormateCurrency(context);
                       final String income =
-                          state.expenses.totalIncome.toFormateCurrency(context);
+                          state.expenses.totalIncome(null).toFormateCurrency(context);
                       final String totalBalance =
-                          (state.expenses.fullTotal + account.initialAmount)
+                          (state.expenses.fullTotal(null) + account.initialAmount)
                               .toFormateCurrency(context);
                       return AccountCard(
                         key: ValueKey(account.hashCode),

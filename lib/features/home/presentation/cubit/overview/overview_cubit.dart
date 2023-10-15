@@ -52,16 +52,25 @@ class OverviewCubit extends Cubit<BudgetState> {
   }
 
   void fetchSelectedTimeExpenses(String time) {
-    final List<TransactionEntity> selectedTimeExpenses =
+    final List<TransactionEntity> gropedExpenses =
         _groupedExpenses[time] ?? [];
+
+    final List<TransactionEntity> selectedTimeExpenses =
+    gropedExpenses.where((element) {
+      CategoryEntity category =
+          getCategoryUseCase(GetCategoryParams(element.categoryId)) ??
+              _defaultCategories.first;
+      return !(category.isDefault ?? true);
+    }).toList();
+
     final Map<CategoryEntity, List<TransactionEntity>> categoryGroupedExpenses =
         groupBy(selectedTimeExpenses, (TransactionEntity expense) {
       return getCategoryUseCase(GetCategoryParams(expense.categoryId)) ??
           _defaultCategories.first;
     });
     final List<MapEntry<CategoryEntity, List<TransactionEntity>>> mapExpenses =
-        categoryGroupedExpenses.entries.toList().sorted(
-            (a, b) => b.value.totalExpense.compareTo(a.value.totalExpense));
+        categoryGroupedExpenses.entries.toList().sorted((a, b) =>
+            b.value.totalExpense(null).compareTo(a.value.totalExpense(null)));
     emit(FilteredCategoryListState(
       mapExpenses,
       selectedTimeExpenses.total,

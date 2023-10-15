@@ -1,3 +1,4 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -43,7 +44,7 @@ class BudgetPage extends StatelessWidget {
               final List<TransactionEntity> expenses =
                   BlocProvider.of<HomeBloc>(context)
                       .fetchExpensesFromCategoryId(category.superId!)
-                      .thisMonthExpensesList;
+                      .thisMonthExpensesList(null);
               return BudgetItem(category: category, expenses: expenses);
             },
             separatorBuilder: (BuildContext context, int index) =>
@@ -67,7 +68,7 @@ class BudgetItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double totalExpenses = expenses.totalExpense;
+    final double totalExpenses = expenses.totalExpense(context);
     final double totalBudget =
         (category.finalBudget == 0.0 ? 1 : category.finalBudget);
     double difference = category.finalBudget - totalExpenses;
