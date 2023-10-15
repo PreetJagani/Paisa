@@ -46,7 +46,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "dev.hemanths.paisa"
+        applicationId "dev.paisa"
         minSdkVersion 21
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
